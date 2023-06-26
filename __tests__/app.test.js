@@ -35,3 +35,22 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id", () => {
+  test("should return the article object linked to the given id", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then(({ body }) => {
+        expect(typeof body.article).toBe("object");
+        expect(body.article).toHaveProperty("author");
+        expect(body.article).toHaveProperty("title");
+        expect(body.article).toHaveProperty("article_id");
+        expect(body.article).toHaveProperty("body");
+        expect(body.article).toHaveProperty("topic");
+        expect(body.article).toHaveProperty("created_at");
+        expect(body.article).toHaveProperty("votes");
+        expect(body.article).toHaveProperty("article_img_url");
+      });
+  });
+});
