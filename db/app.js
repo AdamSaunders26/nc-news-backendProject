@@ -8,6 +8,7 @@ const app = express();
 
 app.get("/api/", getEndpoints);
 app.get("/api/topics", getTopics);
+app.get("/api/articles", getArticle);
 app.get("/api/articles/:article_id", getArticle);
 
 app.use((req, res, next) => {
