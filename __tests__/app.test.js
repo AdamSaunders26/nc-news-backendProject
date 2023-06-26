@@ -35,3 +35,16 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+describe("GET /api/", () => {
+  test("200: should return an object with all other avilable endpoints", () => {
+    const endpointsObj = require("../endpoints.json");
+    return request(app)
+      .get("/api/")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints).toEqual(endpointsObj);
+        expect(typeof body.endpoints).toBe("object");
+      });
+  });
+});
