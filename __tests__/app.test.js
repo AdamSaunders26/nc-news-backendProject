@@ -20,17 +20,19 @@ describe("GET /api/topics", () => {
       .then(({ body }) => {
         expect(Array.isArray(body.topics)).toBe(true);
         expect(body.topics.length).toBe(3);
-      });
-  });
-  test("200: each topic should have slug and description properties", () => {
-    return request(app)
-      .get("/api/topics")
-      .expect(200)
-      .then(({ body }) => {
         body.topics.forEach((topic) => {
           expect(topic).toHaveProperty("slug");
           expect(topic).toHaveProperty("description");
         });
+      });
+  });
+  test("404: should return error message if the endpoint does not exist", () => {
+    return request(app)
+      .get("/api/goobledegook")
+      .expect(404)
+      .then(({ body }) => {
+        console.log(body);
+        expect(body.message).toBe("This endpoint does not exist");
       });
   });
 });

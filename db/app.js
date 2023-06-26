@@ -1,14 +1,14 @@
 const express = require("express");
 const { getTopics } = require("./controllers/topics.controller");
+const { serverError } = require("./models/error-handlers");
 
 const app = express();
 
-app.use("/api/topics", getTopics);
+app.get("/api/topics", getTopics);
 
-if (process.env.PGDATABSE === "development") {
-  app.listen(9090, () => {
-    console.log("app is listening on port 9090");
-  });
-}
+app.use((req, res, next) => {
+  res.status(404).send({ message: "This endpoint does not exist" });
+});
+app.use(serverError);
 
 module.exports = app;
