@@ -51,27 +51,31 @@ describe("GET /api/", () => {
 
 describe("GET /api/articles/:article_id", () => {
   test("200: should return the article object linked to the given id", () => {
+    const exampleObject = {
+      article_id: 3,
+      title: "Eight pug gifs that remind me of mitch",
+      topic: "mitch",
+      author: "icellusedkars",
+      body: "some gifs",
+      created_at: "2020-11-03T09:12:00.000Z",
+      votes: 0,
+      article_img_url:
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+    };
     return request(app)
       .get("/api/articles/3")
       .expect(200)
       .then(({ body }) => {
         expect(typeof body.article).toBe("object");
-        expect(body.article).toHaveProperty("author");
-        expect(body.article).toHaveProperty("title");
-        expect(body.article).toHaveProperty("article_id");
-        expect(body.article).toHaveProperty("body");
-        expect(body.article).toHaveProperty("topic");
-        expect(body.article).toHaveProperty("created_at");
-        expect(body.article).toHaveProperty("votes");
-        expect(body.article).toHaveProperty("article_img_url");
+        expect(body.article).toMatchObject(exampleObject);
       });
   });
-  test("400: should return an error message for a non-existing article_id", () => {
+  test("404: should return an error message for a non-existing article_id", () => {
     return request(app)
       .get("/api/articles/999")
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe("Error: Bad Request");
+        expect(body.message).toBe("Error: Not Found");
       });
   });
   test("400: should return an error message for an invalid article_id", () => {

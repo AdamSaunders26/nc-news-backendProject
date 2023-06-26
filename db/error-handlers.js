@@ -13,7 +13,7 @@ exports.customError = (err, req, res, next) => {
 
 exports.psqlError = (err, req, res, next) => {
   if (err.code) {
-    res.status(400).send({ message: 'Error: Bad Request'});
+    res.status(400).send({ message: "Error: Bad Request" });
   } else {
     next(err);
   }
