@@ -31,7 +31,6 @@ describe("GET /api/topics", () => {
       .get("/api/goobledegook")
       .expect(404)
       .then(({ body }) => {
-        console.log(body);
         expect(body.message).toBe("This endpoint does not exist");
       });
   });
