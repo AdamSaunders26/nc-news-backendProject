@@ -36,8 +36,21 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe("GET /api/", () => {
+  test("200: should return an object with all other avilable endpoints", () => {
+    const endpointsObj = require("../endpoints.json");
+    return request(app)
+      .get("/api/")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints).toEqual(endpointsObj);
+        expect(typeof body.endpoints).toBe("object");
+      });
+  });
+});
+
 describe("GET /api/articles/:article_id", () => {
-  test("should return the article object linked to the given id", () => {
+  test("200: should return the article object linked to the given id", () => {
     return request(app)
       .get("/api/articles/3")
       .expect(200)
@@ -51,6 +64,22 @@ describe("GET /api/articles/:article_id", () => {
         expect(body.article).toHaveProperty("created_at");
         expect(body.article).toHaveProperty("votes");
         expect(body.article).toHaveProperty("article_img_url");
+      });
+  });
+  test("400: should return an error message for a non-existing article_id", () => {
+    return request(app)
+      .get("/api/articles/999")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error message for an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/snorlax")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
       });
   });
 });
