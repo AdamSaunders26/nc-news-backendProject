@@ -28,11 +28,11 @@ exports.selectAllArticles = async () => {
     });
 
   const articlesQuery = await db
-    .query(`SELECT * FROM articles`)
+    .query(`SELECT * FROM articles ORDER BY created_at DESC`)
     .then(({ rows }) => {
+      console.log(rows);
       return rows;
     });
 
   return formatArticles(articlesQuery, commentsQuery);
 };
-

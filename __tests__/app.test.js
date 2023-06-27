@@ -94,6 +94,10 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
+        expect(body.articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
         body.articles.forEach((article) => {
           expect(typeof article).toBe("object");
           expect(article).not.toHaveProperty("body");
