@@ -1,5 +1,6 @@
 const db = require("../connection");
 const format = require("pg-format");
+const { formatArticles } = require("../utility");
 
 exports.selectArticle = (article_id) => {
   let queryStr = `SELECT * FROM articles `;
@@ -9,20 +10,31 @@ exports.selectArticle = (article_id) => {
   }
 
   return db.query(queryStr).then(({ rows }) => {
-    console.log(rows);
-    console.log(rows.length);
-    switch (rows.length) {
-      case 0:
-        return Promise.reject({ status: 404, message: "Error: Not Found" });
-      case 1:
-        return rows[0];
-      default:
-        console.log(rows);
-        return rows;
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, message: "Error: Not Found" });
+    } else {
+      return rows[0];
     }
   });
 };
 
+exports.selectAllArticles = async () => {
+  const commentsQuery = await db
+    .query(
+      `SELECT articles.article_id, COUNT(comments.body) FROM articles JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;`
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+
+  const articlesQuery = await db
+    .query(`SELECT * FROM articles`)
+    .then(({ rows }) => {
+      return rows;
+    });
+
+  return formatArticles(articlesQuery, commentsQuery);
+};
 //You'll need this tomorrow...
 
 // SELECT articles.article_id, COUNT(comments.body) FROM articles JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;
