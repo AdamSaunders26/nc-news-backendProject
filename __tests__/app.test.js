@@ -113,3 +113,52 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: should return an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const expectedComment = {
+          comment_id: expect.any(Number),
+          body: expect.any(String),
+          article_id: 1,
+          author: expect.any(String),
+          votes: expect.any(Number),
+        };
+        expect(body.comments).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+        expect(body.comments).toHaveLength(11);
+        body.comments.forEach((comment) => {
+          expect(comment).toMatchObject(expectedComment);
+        });
+      });
+  });
+  test("404: should return an error message for an non-existant article_id", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  test("400: should return an error message for an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/shialebeouf/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("200: should return an empty array if there are no comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toEqual([]);
+      });
+  });
+});
