@@ -16,3 +16,7 @@ exports.getArticles = (req, res, next) => {
       .catch(next);
   }
 };
+
+exports.patchArticle = (req, res, next) => {
+  
+}
