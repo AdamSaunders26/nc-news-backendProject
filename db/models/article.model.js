@@ -35,6 +35,4 @@ exports.selectAllArticles = async () => {
 
   return formatArticles(articlesQuery, commentsQuery);
 };
-//You'll need this tomorrow...
 
-// SELECT articles.article_id, COUNT(comments.body) FROM articles JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;
