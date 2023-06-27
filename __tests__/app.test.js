@@ -3,6 +3,7 @@ const app = require("../db/app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
+const { getComments } = require("../db/controllers/comments.controller");
 
 beforeEach(() => {
   return seed(data);
@@ -159,6 +160,113 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.comments).toEqual([]);
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: should post a comment for an article and return the posted comment", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: "I wish there more bridges made of butter...",
+    };
+    const expectedComment = {
+      comment_id: expect.any(Number),
+      body: "I wish there more bridges made of butter...",
+      article_id: 2,
+      author: "butter_bridge",
+      votes: expect.any(Number),
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.postedComment).toMatchObject(expectedComment);
+      });
+  });
+  test("400: should return an error if no username is provided", () => {
+    const comment = {
+      body: "I wish there more bridges made of butter...",
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if no body is provided", () => {
+    const comment = {
+      username: "butter_bridge",
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if an invalid username is provided", () => {
+    const comment = {
+      username: "hansolo",
+      body: "I wish there more bridges made of butter...",
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the body is not a string", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: 26,
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+
+  test("400: should return an error if the article_id does not exist", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: "best comment ever",
+    };
+
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the article_id is invalid", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: "best comment ever",
+    };
+
+    return request(app)
+      .post("/api/articles/shialebeouf/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
       });
   });
 });
