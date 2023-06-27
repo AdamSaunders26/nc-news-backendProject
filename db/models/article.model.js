@@ -30,7 +30,6 @@ exports.selectAllArticles = async () => {
   const articlesQuery = await db
     .query(`SELECT * FROM articles ORDER BY created_at DESC`)
     .then(({ rows }) => {
-      console.log(rows);
       return rows;
     });
 
