@@ -1,10 +1,19 @@
-const { selectArticle } = require("../models/article.model");
+const { selectArticle, selectAllArticles } = require("../models/article.model");
 
-exports.getArticle = (req, res, next) => {
+exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
-  selectArticle(article_id)
-    .then((article) => {
-      res.status(200).send({ article });
-    })
-    .catch(next);
+  
+  if (!article_id) {
+    selectAllArticles()
+      .then((articles) => {
+        res.status(200).send({ articles });
+      })
+      .catch(next);
+  } else {
+    selectArticle(article_id)
+      .then((articles) => {
+        res.status(200).send({ articles });
+      })
+      .catch(next);
+  }
 };

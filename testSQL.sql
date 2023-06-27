@@ -1,0 +1,1 @@
+SELECT articles.title, comments.body FROM articles JOIN comments ON articles.article_id = comments.article_id;
