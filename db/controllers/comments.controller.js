@@ -1,14 +1,23 @@
-const { selectComments, commentChecker } = require("../models/comments.model");
+const { articleChecker } = require("../models/article.model");
+const { insertCommment } = require("../models/comments.model");
+const { selectComments  } = require("../models/comments.model");
 
 exports.getComments = (req, res, next) => {
   const { article_id } = req.params;
 
-  if (/[A-z]/gi.test(article_id)) {
-    new Error({ status: 400, message: "Error: Bad Request" });
-  }
-  Promise.all([commentChecker(article_id), selectComments(article_id)])
+  Promise.all([selectComments(article_id), articleChecker(article_id)])
     .then((resolvedPromises) => {
-      res.status(200).send({ comments: resolvedPromises[1] });
+      res.status(200).send({ comments: resolvedPromises[0] });
+    })
+    .catch(next);
+};
+
+exports.postComment = (req, res, next) => {
+  const { username, body } = req.body;
+  const { article_id } = req.params;
+  insertCommment(username, body, article_id)
+    .then((postedComment) => {
+      res.status(201).send({ postedComment });
     })
     .catch(next);
 };

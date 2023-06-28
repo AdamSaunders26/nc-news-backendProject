@@ -3,6 +3,7 @@ const app = require("../db/app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
+const { getComments } = require("../db/controllers/comments.controller");
 
 beforeEach(() => {
   return seed(data);
@@ -163,15 +164,133 @@ describe("GET /api/articles/:article_id/comments", () => {
   });
 });
 
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: should post a comment for an article and return the posted comment", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: "I wish there more bridges made of butter...",
+    };
+    const expectedComment = {
+      comment_id: expect.any(Number),
+      body: "I wish there more bridges made of butter...",
+      article_id: 2,
+      author: "butter_bridge",
+      votes: expect.any(Number),
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.postedComment).toMatchObject(expectedComment);
+      });
+  });
+  test("400: should return an error if no username is provided", () => {
+    const comment = {
+      body: "I wish there more bridges made of butter...",
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if no body is provided", () => {
+    const comment = {
+      username: "butter_bridge",
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if an invalid username is provided", () => {
+    const comment = {
+      username: "hansolo",
+      body: "I wish there more bridges made of butter...",
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the body is not a string", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: 26,
+    };
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+
+  test("400: should return an error if the article_id does not exist", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: "best comment ever",
+    };
+
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the article_id is invalid", () => {
+    const comment = {
+      username: "butter_bridge",
+      body: "best comment ever",
+    };
+
+    return request(app)
+      .post("/api/articles/shialebeouf/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the comment is an empty object", () => {
+    const comment = {};
+
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});
+
 describe("PATCH /api/articles/:article_id", () => {
-  xtest("200: should increment the given articles votes by the given amount ", () => {
+  test("200: should increment the given articles votes by the given amount ", () => {
     const newVotes = { inc_votes: 1 };
     const expectedArticle = {
       article_id: 2,
-      title: expect.any("String"),
-      topic: expect.any("String"),
-      author: expect.any("String"),
-      body: expect.any("String"),
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
       votes: 1,
     };
     return request(app)
@@ -179,7 +298,83 @@ describe("PATCH /api/articles/:article_id", () => {
       .send(newVotes)
       .expect(200)
       .then(({ body }) => {
-        expect(body.article).toMatchObject(expectedArticle);
+        expect(body.patchedArticle).toMatchObject(expectedArticle);
+      });
+  });
+  test("200: should increment the given articles votes by a large amount ", () => {
+    const newVotes = { inc_votes: 100 };
+    const expectedArticle = {
+      article_id: 2,
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      votes: 100,
+    };
+    return request(app)
+      .patch("/api/articles/2")
+      .send(newVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.patchedArticle).toMatchObject(expectedArticle);
+      });
+  });
+  test("200: should decrement the given articles votes if given a negative amount", () => {
+    const newVotes = { inc_votes: -12 };
+    const expectedArticle = {
+      article_id: 2,
+      title: expect.any(String),
+      topic: expect.any(String),
+      author: expect.any(String),
+      body: expect.any(String),
+      votes: -12,
+    };
+    return request(app)
+      .patch("/api/articles/2")
+      .send(newVotes)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.patchedArticle).toMatchObject(expectedArticle);
+      });
+  });
+  test("400: should return an error if not given a number", () => {
+    const newVotes = { inc_votes: "Nic Cage" };
+    return request(app)
+      .patch("/api/articles/2")
+      .send(newVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if given an empty object", () => {
+    const newVotes = {};
+    return request(app)
+      .patch("/api/articles/2")
+      .send(newVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("404: should return an error if given a non-existing article_id", () => {
+    const newVotes = { inc_votes: 24 };
+    return request(app)
+      .patch("/api/articles/789")
+      .send(newVotes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  test("400: should return an error if given an invalid article_id", () => {
+    const newVotes = { inc_votes: 24 };
+    return request(app)
+      .patch("/api/articles/harrypotter")
+      .send(newVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
       });
   });
 });

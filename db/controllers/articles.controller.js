@@ -1,4 +1,9 @@
-const { selectArticle, selectAllArticles } = require("../models/article.model");
+const {
+  selectArticle,
+  selectAllArticles,
+  updateArticles,
+} = require("../models/article.model");
+const { articleChecker } = require("../models/article.model");
 
 exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
@@ -18,5 +23,15 @@ exports.getArticles = (req, res, next) => {
 };
 
 exports.patchArticle = (req, res, next) => {
-  
-}
+  const { inc_votes } = req.body;
+  const { article_id } = req.params;
+
+  Promise.all([
+    updateArticles(inc_votes, article_id),
+    articleChecker(article_id),
+  ])
+    .then((resolvedPromises) => {
+      res.status(200).send({ patchedArticle: resolvedPromises[0] });
+    })
+    .catch(next);
+};
