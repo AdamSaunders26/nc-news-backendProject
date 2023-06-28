@@ -2,7 +2,10 @@ const express = require("express");
 const { getTopics } = require("./controllers/topics.controller");
 const { serverError, customError, psqlError } = require("./error-handlers");
 const { getEndpoints } = require("./controllers/api.controller");
-const { getArticles } = require("./controllers/articles.controller");
+const {
+  getArticles,
+  patchArticle,
+} = require("./controllers/articles.controller");
 const {
   getComments,
   postComment,
@@ -17,6 +20,7 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticles);
 app.get("/api/articles/:article_id/comments", getComments);
 app.post("/api/articles/:article_id/comments", postComment);
+app.patch("/api/articles/:article_id", patchArticle);
 
 app.use((req, res, next) => {
   res.status(404).send({ message: "This endpoint does not exist" });
