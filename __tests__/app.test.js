@@ -380,12 +380,28 @@ describe("PATCH /api/articles/:article_id", () => {
 });
 
 describe("DELETE /api/comments/:comment_id", () => {
-  xtest("204: should delete the comment linked to the given comment_id", () => {
+  test("204: should delete the comment linked to the given comment_id", () => {
     return request(app)
       .delete("/api/comments/3")
       .expect(204)
       .then(({ body }) => {
         expect(body).toEqual({});
+      });
+  });
+  test("404: should return an error if given a non-existing comment_id", () => {
+    return request(app)
+      .delete("/api/comments/1000")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  test("400 should return an error if given an invalid comment_id", () => {
+    return request(app)
+      .delete("/api/comments/spider-man")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
       });
   });
 });
