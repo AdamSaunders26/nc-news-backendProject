@@ -212,7 +212,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Error: Bad Request");
       });
   });
-  test("400: should return an error if an invalid username is provided", () => {
+  test("404: should return an error if an invalid username is provided", () => {
     const comment = {
       username: "hansolo",
       body: "I wish there more bridges made of butter...",
@@ -221,9 +221,9 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/2/comments")
       .send(comment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe("Error: Bad Request");
+        expect(body.message).toBe("Error: Not Found");
       });
   });
   test("400: should return an error if the body is not a string", () => {
@@ -241,7 +241,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  test("400: should return an error if the article_id does not exist", () => {
+  test("404: should return an error if the article_id does not exist", () => {
     const comment = {
       username: "butter_bridge",
       body: "best comment ever",
@@ -250,9 +250,9 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/999/comments")
       .send(comment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe("Error: Bad Request");
+        expect(body.message).toBe("Error: Not Found");
       });
   });
   test("400: should return an error if the article_id is invalid", () => {
@@ -375,6 +375,17 @@ describe("PATCH /api/articles/:article_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  xtest("204: should delete the comment linked to the given comment_id", () => {
+    return request(app)
+      .delete("/api/comments/3")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
       });
   });
 });
