@@ -269,4 +269,15 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Error: Bad Request");
       });
   });
+  test("400: should return an error if the comment is an empty object", () => {
+    const comment = {};
+
+    return request(app)
+      .post("/api/articles/shialebeouf/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
 });
