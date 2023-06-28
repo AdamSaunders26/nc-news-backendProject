@@ -23,3 +23,20 @@ exports.insertCommment = (username, body, article_id) => {
         })
     : Promise.reject({ status: 400, message: "Error: Bad Request" });
 };
+
+exports.destroyComment = (comment_id) => {
+  return db.query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *;`, [
+    comment_id,
+  ]);
+};
+
+exports.commentChecker = (comment_id) => {
+  return db.query(`SELECT comment_id FROM comments;`).then(({ rows }) => {
+    const commentIdArray = rows.map((comment) => {
+      return comment.comment_id;
+    });
+    if (!commentIdArray.includes(Number(comment_id))) {
+      return Promise.reject({ status: 404, message: "Error: Not Found" });
+    }
+  });
+};

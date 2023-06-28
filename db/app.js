@@ -9,6 +9,7 @@ const {
 const {
   getComments,
   postComment,
+  deleteComment,
 } = require("./controllers/comments.controller");
 
 const app = express();
@@ -19,8 +20,11 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticles);
 app.get("/api/articles/:article_id/comments", getComments);
+
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);
+
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.use((req, res, next) => {
   res.status(404).send({ message: "This endpoint does not exist" });
