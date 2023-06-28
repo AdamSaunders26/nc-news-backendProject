@@ -273,7 +273,7 @@ describe("POST /api/articles/:article_id/comments", () => {
     const comment = {};
 
     return request(app)
-      .post("/api/articles/shialebeouf/comments")
+      .post("/api/articles/2/comments")
       .send(comment)
       .expect(400)
       .then(({ body }) => {
