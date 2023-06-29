@@ -7,8 +7,22 @@ const { articleChecker } = require("../models/article.model");
 
 exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
+  const { query } = req;
+
+  if (query.hasOwnProperty("sortby") && query.sortby === "comment_count") {
+    if (query.hasOwnProperty("topic")) {
+      selectAllArticles({ topic: query.topic }).then((o) => {
+        console.log("you haven't made this yet");
+      });
+    } else {
+      selectAllArticles({}).then((o) => {
+        console.log(o);
+      });
+    }
+  }
+
   if (!article_id) {
-    selectAllArticles()
+    selectAllArticles(query)
       .then((articles) => {
         res.status(200).send({ articles });
       })
