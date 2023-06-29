@@ -1,3 +1,4 @@
+const { sort } = require("../data/test-data/articles");
 const {
   selectArticle,
   selectAllArticles,
@@ -5,12 +6,15 @@ const {
 } = require("../models/article.model");
 const { articleChecker } = require("../models/article.model");
 
+
 exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
+  const { query } = req;
+
   if (!article_id) {
-    selectAllArticles()
+    selectAllArticles(query)
       .then((articles) => {
-        res.status(200).send({ articles });
+                res.status(200).send({ articles });
       })
       .catch(next);
   } else {
