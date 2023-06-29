@@ -482,6 +482,7 @@ describe("GET /api/articles?query=true", () => {
         expect(body.articles).toBeSorted({
           key: "comment_count",
           descending: true,
+          coerce: true,
         });
       });
   });
@@ -494,6 +495,7 @@ describe("GET /api/articles?query=true", () => {
         expect(body.articles).toBeSorted({
           key: "comment_count",
           ascending: true,
+          coerce: true,
         });
       });
   });
@@ -506,6 +508,7 @@ describe("GET /api/articles?query=true", () => {
         expect(body.articles).toBeSorted({
           key: "comment_count",
           descending: true,
+          coerce: true,
         });
         body.articles.forEach((article) => {
           expect(article.topic).toBe("mitch");
@@ -521,6 +524,7 @@ describe("GET /api/articles?query=true", () => {
         expect(body.articles).toBeSorted({
           key: "comment_count",
           ascending: true,
+          coerce: true,
         });
         body.articles.forEach((article) => {
           expect(article.topic).toBe("mitch");
