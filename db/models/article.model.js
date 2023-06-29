@@ -1,6 +1,5 @@
 const db = require("../connection");
 const format = require("pg-format");
-// const { formatArticles } = require("../utility");
 
 exports.selectArticle = (article_id) => {
   let queryStr = `SELECT * FROM articles `;
@@ -85,7 +84,6 @@ exports.selectAllArticles = async (query) => {
     return rows;
   });
   return articlesQuery;
-  // return formatArticles(articlesQuery, commentsQuery);
 };
 
 exports.updateArticles = (inc_votes, article_id) => {

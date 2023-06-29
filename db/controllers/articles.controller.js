@@ -5,7 +5,7 @@ const {
   updateArticles,
 } = require("../models/article.model");
 const { articleChecker } = require("../models/article.model");
-//const { sortByComments } = require("../utility");
+
 
 exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
