@@ -1,4 +1,8 @@
-exports.formatArticles = (articleArray, commentArray) => {
+exports.formatArticles = (
+  articleArray,
+  commentArray,
+  singleArticle = false
+) => {
   const commentCount = {};
   commentArray.forEach((comment) => {
     commentCount[comment.article_id] = comment.count;
@@ -11,7 +15,9 @@ exports.formatArticles = (articleArray, commentArray) => {
     } else {
       newObject.comment_count = commentCount[newObject.article_id];
     }
-    delete newObject.body;
+    if (!singleArticle) {
+      delete newObject.body;
+    }
     return newObject;
   });
 };
