@@ -1,23 +1,7 @@
 const db = require("../connection");
 const format = require("pg-format");
 
-exports.selectArticle = (article_id) => {
-  let queryStr = `SELECT * FROM articles `;
-
-  if (article_id) {
-    queryStr += format(`WHERE article_id = %L`, [article_id]);
-  }
-
-  return db.query(queryStr).then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, message: "Error: Not Found" });
-    } else {
-      return rows[0];
-    }
-  });
-};
-
-exports.selectAllArticles = async (query) => {
+exports.selectArticles = (query) => {
   const topicSafelist = [
     "mitch",
     "cats",
@@ -38,10 +22,16 @@ exports.selectAllArticles = async (query) => {
   ];
   const orderSafelist = ["asc", "desc"];
 
-  let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id `;
+  const article = !query.article_id ? `` : `articles.body, `;
+  let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, ${article} articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id `;
 
   if (query.hasOwnProperty("topic") && topicSafelist.includes(query.topic)) {
     queryStr += `WHERE topic = '${query.topic}' `;
+  } else if (
+    query.hasOwnProperty("article_id") &&
+    query.article_id.toString() !== "NaN"
+  ) {
+    queryStr += `WHERE articles.article_id = ${query.article_id} `;
   } else if (
     query.hasOwnProperty("topic") &&
     !topicSafelist.includes(query.topic)
@@ -72,18 +62,9 @@ exports.selectAllArticles = async (query) => {
     queryStr += `DESC `;
   }
 
-  const commentsQuery = await db
-    .query(
-      `SELECT articles.article_id, COUNT(comments.body) FROM articles JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
-
-  const articlesQuery = await db.query(queryStr).then(({ rows }) => {
-    return rows;
+  return db.query(queryStr).then(({ rows }) => {
+    return !query.article_id ? rows : rows[0];
   });
-  return articlesQuery;
 };
 
 exports.updateArticles = (inc_votes, article_id) => {
@@ -107,10 +88,15 @@ exports.articleChecker = (article_id) => {
       output.rows.map((element) => {
         commentLookup[element.article_id] = element.comment_count;
       });
+      if (!article_id) {
+        return;
+      }
 
-      if (Object.keys(commentLookup).includes(article_id)) {
-        return commentLookup;
-      } else {
+      if (Number(article_id).toString() === "NaN") {
+        return Promise.reject({ status: 400, message: "Error: Bad Request" });
+      }
+
+      if (!Object.keys(commentLookup).includes(article_id)) {
         return Promise.reject({ status: 404, message: "Error: Not Found" });
       }
     });

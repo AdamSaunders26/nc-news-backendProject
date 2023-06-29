@@ -1,29 +1,21 @@
 const { sort } = require("../data/test-data/articles");
 const {
-  selectArticle,
-  selectAllArticles,
+ 
+  selectArticles,
   updateArticles,
 } = require("../models/article.model");
 const { articleChecker } = require("../models/article.model");
 
-
 exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
   const { query } = req;
+  query.article_id = Number(article_id);
 
-  if (!article_id) {
-    selectAllArticles(query)
-      .then((articles) => {
-                res.status(200).send({ articles });
-      })
-      .catch(next);
-  } else {
-    selectArticle(article_id)
-      .then((articles) => {
-        res.status(200).send({ articles });
-      })
-      .catch(next);
-  }
+  Promise.all([selectArticles(query), articleChecker(article_id)])
+    .then((articles) => {
+      res.status(200).send({ articles: articles[0] });
+    })
+    .catch(next);
 };
 
 exports.patchArticle = (req, res, next) => {
