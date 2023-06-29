@@ -406,7 +406,7 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
-describe.only("GET /api/users", () => {
+describe("GET /api/users", () => {
   test("should return an array of all users", () => {
     return request(app)
       .get("/api/users")
