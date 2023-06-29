@@ -1,9 +1,11 @@
+const { sort } = require("../data/test-data/articles");
 const {
   selectArticle,
   selectAllArticles,
   updateArticles,
 } = require("../models/article.model");
 const { articleChecker } = require("../models/article.model");
+const { sortByComments } = require("../utility");
 
 exports.getArticles = (req, res, next) => {
   const { article_id } = req.params;
@@ -11,17 +13,30 @@ exports.getArticles = (req, res, next) => {
 
   if (query.hasOwnProperty("sortby") && query.sortby === "comment_count") {
     if (query.hasOwnProperty("topic")) {
-      selectAllArticles({ topic: query.topic }).then((o) => {
-        console.log("you haven't made this yet");
+      if (query.hasOwnProperty("order")) {
+        selectAllArticles({ topic: query.topic }).then((unsortedArticles) => {
+          const articles = sortByComments(unsortedArticles, query.order);
+          res.status(200).send({ articles });
+        });
+      } else {
+       
+        selectAllArticles({ topic: query.topic }).then((unsortedArticles) => {
+          const articles = sortByComments(unsortedArticles);
+          res.status(200).send({ articles });
+        });
+      }
+    } else if (query.hasOwnProperty("order")) {
+      selectAllArticles({}).then((unsortedArticles) => {
+        const articles = sortByComments(unsortedArticles, query.order);
+        res.status(200).send({ articles });
       });
     } else {
-      selectAllArticles({}).then((o) => {
-        console.log(o);
+      selectAllArticles({}).then((unsortedArticles) => {
+        const articles = sortByComments(unsortedArticles);
+        res.status(200).send({ articles });
       });
     }
-  }
-
-  if (!article_id) {
+  } else if (!article_id) {
     selectAllArticles(query)
       .then((articles) => {
         res.status(200).send({ articles });

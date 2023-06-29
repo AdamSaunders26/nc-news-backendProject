@@ -423,7 +423,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe.only("GET /api/articles?query=true", () => {
+describe("GET /api/articles?query=true", () => {
   test("200: should allow users to search by topic", () => {
     return request(app)
       .get("/api/articles?topic=mitch")
@@ -473,7 +473,7 @@ describe.only("GET /api/articles?query=true", () => {
         expect(body.articles).toBeSorted({ key: "author", descending: true });
       });
   });
-  xtest.only("200: should allow users to sort by comment_count", () => {
+  test("200: should allow users to sort by comment_count", () => {
     return request(app)
       .get("/api/articles?sortby=comment_count")
       .expect(200)
@@ -482,6 +482,48 @@ describe.only("GET /api/articles?query=true", () => {
         expect(body.articles).toBeSorted({
           key: "comment_count",
           descending: true,
+        });
+      });
+  });
+  test("200: should allow users to sort by comment_count and order", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          ascending: true,
+        });
+      });
+  });
+  test("200: should allow users to sort by comment_count and topic", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count&topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          descending: true,
+        });
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("200: should allow users to sort by comment_count, order and topic", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count&topic=mitch&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          ascending: true,
+        });
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
         });
       });
   });
