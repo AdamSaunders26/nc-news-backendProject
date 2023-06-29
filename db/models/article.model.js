@@ -1,49 +1,70 @@
 const db = require("../connection");
 const format = require("pg-format");
-const { formatArticles } = require("../utility");
 
-exports.selectArticle = async (article_id) => {
-  let queryStr = `SELECT * FROM articles `;
+exports.selectArticles = (query) => {
+  const topicSafelist = [
+    "mitch",
+    "cats",
+    "paper",
+    "coding",
+    "football",
+    "cooking",
+  ];
+  const sortbySafelist = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+  const orderSafelist = ["asc", "desc"];
 
-  if (article_id) {
-    queryStr += format(`WHERE article_id = %L`, [article_id]);
+  const article = !query.article_id ? `` : `articles.body, `;
+  let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, ${article} articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id `;
+
+  if (query.hasOwnProperty("topic") && topicSafelist.includes(query.topic)) {
+    queryStr += `WHERE topic = '${query.topic}' `;
+  } else if (
+    query.hasOwnProperty("article_id") &&
+    query.article_id.toString() !== "NaN"
+  ) {
+    queryStr += `WHERE articles.article_id = ${query.article_id} `;
+  } else if (
+    query.hasOwnProperty("topic") &&
+    !topicSafelist.includes(query.topic)
+  ) {
+    return Promise.reject({ status: 404, message: "Error: Not Found" });
+  }
+  queryStr += `GROUP BY articles.article_id `;
+
+  if (query.hasOwnProperty("sortby") && sortbySafelist.includes(query.sortby)) {
+    queryStr += `ORDER BY ${query.sortby} `;
+  } else if (
+    query.hasOwnProperty("sortby") &&
+    !sortbySafelist.includes(query.sortby)
+  ) {
+    return Promise.reject({ status: 404, message: "Error: Not Found" });
+  } else {
+    queryStr += `ORDER BY created_at `;
   }
 
-  const commentsQuery = await db
-    .query(
-      `SELECT articles.article_id, COUNT(comments.body) FROM articles JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+  if (query.hasOwnProperty("order") && orderSafelist.includes(query.order)) {
+    queryStr += ` ${query.order}`;
+  } else if (
+    query.hasOwnProperty("order") &&
+    !orderSafelist.includes(query.order)
+  ) {
+    return Promise.reject({ status: 400, message: "Error: Bad Request" });
+  } else {
+    queryStr += `DESC `;
+  }
 
-  const articleQuery = await db.query(queryStr).then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, message: "Error: Not Found" });
-    } else {
-      return rows;
-    }
+  return db.query(queryStr).then(({ rows }) => {
+    return !query.article_id ? rows : rows[0];
   });
-
-  return formatArticles(articleQuery, commentsQuery, true)[0];
-};
-
-exports.selectAllArticles = async () => {
-  const commentsQuery = await db
-    .query(
-      `SELECT articles.article_id, COUNT(comments.body) FROM articles JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id;`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
-
-  const articlesQuery = await db
-    .query(`SELECT * FROM articles ORDER BY created_at DESC`)
-    .then(({ rows }) => {
-      return rows;
-    });
-
-  return formatArticles(articlesQuery, commentsQuery);
 };
 
 exports.updateArticles = (inc_votes, article_id) => {
@@ -67,10 +88,15 @@ exports.articleChecker = (article_id) => {
       output.rows.map((element) => {
         commentLookup[element.article_id] = element.comment_count;
       });
+      if (!article_id) {
+        return;
+      }
 
-      if (Object.keys(commentLookup).includes(article_id)) {
-        return commentLookup;
-      } else {
+      if (Number(article_id).toString() === "NaN") {
+        return Promise.reject({ status: 400, message: "Error: Bad Request" });
+      }
+
+      if (!Object.keys(commentLookup).includes(article_id)) {
         return Promise.reject({ status: 404, message: "Error: Not Found" });
       }
     });

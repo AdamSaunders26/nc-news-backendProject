@@ -443,3 +443,187 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/articles?query=true", () => {
+  test("200: should allow users to search by topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("200: should allow users to search by different topics", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(1);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+  test("200: should return an empty array if there are no articles with a valid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(0);
+      });
+  });
+
+  test("200: should allow users to sort by columns", () => {
+    return request(app)
+      .get("/api/articles?sortby=title")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({ key: "title", descending: true });
+      });
+  });
+  test("200: should allow users to sort by different columns", () => {
+    return request(app)
+      .get("/api/articles?sortby=author")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({ key: "author", descending: true });
+      });
+  });
+  test("200: should allow users to sort by comment_count", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          descending: true,
+          coerce: true,
+        });
+      });
+  });
+  test("200: should allow users to sort by comment_count and order", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          ascending: true,
+          coerce: true,
+        });
+      });
+  });
+  test("200: should allow users to sort by comment_count and topic", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count&topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          descending: true,
+          coerce: true,
+        });
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("200: should allow users to sort by comment_count, order and topic", () => {
+    return request(app)
+      .get("/api/articles?sortby=comment_count&topic=mitch&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSorted({
+          key: "comment_count",
+          ascending: true,
+          coerce: true,
+        });
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("200: should allow users to sort by different columns and filter by topic", () => {
+    return request(app)
+      .get("/api/articles?sortby=author&topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSorted({ key: "author", descending: true });
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+  });
+  test("200: should allow users to choose the sort order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({
+          key: "created_at",
+          ascending: true,
+        });
+      });
+  });
+  test("200: should allow users to sort by descending as well", () => {
+    return request(app)
+      .get("/api/articles?order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSorted({
+          key: "created_at",
+          descending: true,
+        });
+      });
+  });
+
+  test("200: should allow users filter by topic and sorted in an order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&sortby=title&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeSorted({
+          key: "title",
+          ascending: true,
+        });
+      });
+  });
+
+  test("400: should return an error for invalid order", () => {
+    return request(app)
+      .get("/api/articles?order=sideways")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("404: should return an error if the topic doesn't exist", () => {
+    return request(app)
+      .get("/api/articles?topic=hooligans")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  test("404: should return an error message for an invalid column", () => {
+    return request(app)
+      .get("/api/articles?sortby=flavour")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+});
