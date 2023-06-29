@@ -407,7 +407,7 @@ describe("DELETE /api/comments/:comment_id", () => {
 });
 
 describe("GET /api/users", () => {
-  test("should return an array of all users", () => {
+  test("200: should return an array of all users", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
