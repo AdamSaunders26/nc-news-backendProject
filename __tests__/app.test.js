@@ -653,7 +653,7 @@ describe("GET /api/users/:username", () => {
   });
 });
 
-describe.only("PATCH /api/comments/:comment_id", () => {
+describe("PATCH /api/comments/:comment_id", () => {
   test("200: should update the given comment's votes", () => {
     return request(app)
       .patch("/api/comments/8")
