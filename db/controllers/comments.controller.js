@@ -3,7 +3,6 @@ const {
   insertCommment,
   destroyComment,
   selectComments,
-  commentChecker,
 } = require("../models/comments.model");
 
 exports.getComments = (req, res, next) => {
@@ -30,7 +29,7 @@ exports.postComment = (req, res, next) => {
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
 
-  Promise.all([destroyComment(comment_id), commentChecker(comment_id)])
+  destroyComment(comment_id)
     .then(() => {
       res.status(204).send();
     })
