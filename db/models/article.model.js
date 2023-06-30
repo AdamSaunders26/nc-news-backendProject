@@ -101,3 +101,15 @@ exports.articleChecker = (article_id) => {
       }
     });
 };
+
+exports.insertArticle = (article) => {
+  const query = format(
+    `INSERT INTO articles (author, title, body, topic) VALUES (%L); SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.body, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id WHERE articles.title = %L GROUP BY articles.article_id; `,
+    [article.author, article.title, article.body, article.topic],
+    [article.title]
+  );
+
+  return db.query(query).then((output) => {
+    return output[1].rows[0];
+  });
+};

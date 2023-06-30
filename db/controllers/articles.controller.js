@@ -1,8 +1,8 @@
 const { sort } = require("../data/test-data/articles");
 const {
- 
   selectArticles,
   updateArticles,
+  insertArticle,
 } = require("../models/article.model");
 const { articleChecker } = require("../models/article.model");
 
@@ -30,4 +30,17 @@ exports.patchArticle = (req, res, next) => {
       res.status(200).send({ patchedArticle: resolvedPromises[0] });
     })
     .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const article = req.body;
+  insertArticle(article)
+    .then((postedArticle) => {
+           res.status(201).send({ postedArticle });
+    })
+    .catch((err) => {
+      err.code == 23503
+        ? next({ status: 400, message: "Error: Bad Request" })
+        : next(err);
+    });
 };
