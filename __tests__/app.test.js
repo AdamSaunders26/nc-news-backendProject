@@ -628,7 +628,7 @@ describe("GET /api/articles?query=true", () => {
   });
 });
 
-describe("/GET /api/users/:username", () => {
+describe("GET /api/users/:username", () => {
   test("200: should return the expected user object", () => {
     const expectedObject = {
       username: "butter_bridge",
@@ -651,5 +651,52 @@ describe("/GET /api/users/:username", () => {
         expect(body.message).toBe("Error: Not Found");
       });
   });
-  
+});
+
+describe.only("PATCH /api/comments/:comment_id", () => {
+  test("200: should update the given comment's votes", () => {
+    return request(app)
+      .patch("/api/comments/8")
+      .send({ inc_votes: 26 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comment.votes).toBe(26);
+      });
+  });
+  test("404: should return an error if the comment_id does not exist", () => {
+    return request(app)
+      .patch("/api/comments/99999")
+      .send({ inc_votes: 26 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  test("400: should return an error if the comment_id is invalid", () => {
+    return request(app)
+      .patch("/api/comments/schmigadoon")
+      .send({ inc_votes: 26 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the patch body is empty", () => {
+    return request(app)
+      .patch("/api/comments/schmigadoon")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if the patch body is invalid", () => {
+    return request(app)
+      .patch("/api/comments/schmigadoon")
+      .send({ inc_votes: "plum" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
 });
