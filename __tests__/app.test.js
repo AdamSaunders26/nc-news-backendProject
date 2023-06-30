@@ -660,7 +660,7 @@ describe("PATCH /api/comments/:comment_id", () => {
       .send({ inc_votes: 26 })
       .expect(200)
       .then(({ body }) => {
-        expect(body.comment.votes).toBe(26);
+        expect(body.patchedComment.votes).toBe(26);
       });
   });
   test("404: should return an error if the comment_id does not exist", () => {
@@ -694,6 +694,104 @@ describe("PATCH /api/comments/:comment_id", () => {
     return request(app)
       .patch("/api/comments/schmigadoon")
       .send({ inc_votes: "plum" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});
+
+describe.only("POST /api/articles", () => {
+  test("201: should post a new article and return the posted object", () => {
+    const exampleArticle = {
+      article_id: expect.any(Number),
+      title: "a whole new article pondering the man, the myth, the elephant?",
+      topic: "mitch",
+      author: "butter_bridge",
+      body: "I think mitch is an elephant - think about it, have you ever seen mitch and an elephant in the same room at the same time? Though not...",
+      created_at: expect.any(String),
+      votes: 0,
+      article_img_url: expect.any(String),
+      comment_count: "0",
+    };
+    const articleToPost = {
+      author: "butter_bridge",
+      title: "a whole new article pondering the man, the myth, the elephant?",
+      body: "I think mitch is an elephant - think about it, have you ever seen mitch and an elephant in the same room at the same time? Though not...",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(articleToPost)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.postedArticle).toMatchObject(exampleArticle);
+      });
+  });
+  test("400: should return an error for an empty post object", () => {
+    const articleToPost = {};
+    return request(app)
+      .post("/api/articles")
+      .send(articleToPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error for an non-existing username", () => {
+    const articleToPost = {
+      author: "bridge_of_butter",
+      title: "a whole new article pondering the man, the myth, the elephant?",
+      body: "I think mitch is an elephant - think about it, have you ever seen mitch and an elephant in the same room at the same time? Though not...",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(articleToPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error for an non-existing topic", () => {
+    const articleToPost = {
+      author: "butter_bridge",
+      title: "a whole new article pondering the man, the myth, the elephant?",
+      body: "I think mitch is an elephant - think about it, have you ever seen mitch and an elephant in the same room at the same time? Though not...",
+      topic: "miep",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(articleToPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error for an incomplete post object", () => {
+    const articleToPost = {
+      author: "butter_bridge",
+      body: "I think mitch is an elephant - think about it, have you ever seen mitch and an elephant in the same room at the same time? Though not...",
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(articleToPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error for an empty title and body", () => {
+    const articleToPost = {
+      author: "butter_bridge",
+      title: null,
+      body: null,
+      topic: "mitch",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(articleToPost)
       .expect(400)
       .then(({ body }) => {
         expect(body.message).toBe("Error: Bad Request");
