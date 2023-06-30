@@ -6,7 +6,7 @@ https://nc-news-app.onrender.com/api - Hosted version of the API
 
 This API has multiple different endpoints allowing users to access and manipulate a wide range of data. It uses Express and PostgreSQL to enable this and is built using Node.js.
 
-It also features middleware following the MVC model as well as for erro rhandling, including 400 and 404 errors.
+It also features middleware following the MVC model as well as for error handling, including 400 and 404 errors.
 
 ## **Cloning**
 
