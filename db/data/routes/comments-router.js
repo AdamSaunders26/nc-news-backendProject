@@ -5,7 +5,6 @@ const {
 } = require("../../controllers/comments.controller");
 
 const commentsRouter = require("express").Router();
-console.log("ehre");
 
 commentsRouter
   .route("/:article_id/comments")
