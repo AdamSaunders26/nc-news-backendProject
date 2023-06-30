@@ -25,6 +25,8 @@ app.use("/api/", apiRouter);
 app.use("/api/topics", topicsRouter);
 app.use("/api/users", userRouter);
 app.use("/api/articles", articlesRouter);
+
+
 app.use("/api/articles", commentsRouter);
 app.use("/api/comments", commentsRouter);
 

@@ -627,3 +627,29 @@ describe("GET /api/articles?query=true", () => {
       });
   });
 });
+
+describe("/GET /api/users/:username", () => {
+  test("200: should return the expected user object", () => {
+    const expectedObject = {
+      username: "butter_bridge",
+      avatar_url:
+        "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+      name: "jonny",
+    };
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users).toMatchObject(expectedObject);
+      });
+  });
+  test("404: should return an error if the specified username does not exist", () => {
+    return request(app)
+      .get("/api/users/freddiemercury")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  
+});
