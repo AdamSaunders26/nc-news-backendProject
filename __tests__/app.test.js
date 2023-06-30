@@ -701,7 +701,7 @@ describe("PATCH /api/comments/:comment_id", () => {
   });
 });
 
-describe.only("POST /api/articles", () => {
+describe("POST /api/articles", () => {
   test("201: should post a new article and return the posted object", () => {
     const exampleArticle = {
       article_id: expect.any(Number),
