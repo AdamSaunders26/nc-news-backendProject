@@ -36,8 +36,7 @@ exports.postArticle = (req, res, next) => {
   const article = req.body;
   insertArticle(article)
     .then((postedArticle) => {
-      console.log(postedArticle)
-      res.status(201).send({ postedArticle });
+           res.status(201).send({ postedArticle });
     })
     .catch((err) => {
       err.code == 23503
