@@ -21,8 +21,8 @@ exports.selectArticles = (query) => {
     "comment_count",
   ];
   const orderSafelist = ["asc", "desc"];
-
   const article = !query.article_id ? `` : `articles.body, `;
+
   let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, ${article} articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id `;
 
   if (query.hasOwnProperty("topic") && topicSafelist.includes(query.topic)) {
@@ -61,8 +61,16 @@ exports.selectArticles = (query) => {
   } else {
     queryStr += `DESC `;
   }
-
+console.log(query)
+  !query.p ? query.p = 1 : null
+  console.log(query)
+  const startSlice = query.limit * query.p - query.limit;
+  const endSlice = query.limit * query.p;
+  console.log(startSlice, endSlice);
   return db.query(queryStr).then(({ rows }) => {
+    if (query.hasOwnProperty("limit")) {
+      return rows.slice(startSlice, endSlice);
+    }
     return !query.article_id ? rows : rows[0];
   });
 };

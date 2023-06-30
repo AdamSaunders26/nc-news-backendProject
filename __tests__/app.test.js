@@ -798,3 +798,23 @@ describe("POST /api/articles", () => {
       });
   });
 });
+
+describe("PAGINATION GET /api/articles", () => {
+  test("200: should return 10 responses", () => {
+    return request(app)
+      .get("/api/articles?limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(10);
+      });
+  });
+  test("200: should the return the second page of responses", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=2&sortby=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(5);
+        expect(body.articles[0].article_id).toBe(6);
+      });
+  });
+});
