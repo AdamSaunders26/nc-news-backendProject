@@ -22,6 +22,7 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticles);
 app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/users", getUsers);
+app.get("/api/users/:username", getUsers);
 
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);
@@ -34,5 +35,6 @@ app.use((req, res, next) => {
 app.use(psqlError);
 app.use(customError);
 app.use(serverError);
+
 
 module.exports = app;
