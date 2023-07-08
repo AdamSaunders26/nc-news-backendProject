@@ -2,6 +2,7 @@ const db = require("../connection");
 const format = require("pg-format");
 
 exports.selectArticles = (query) => {
+  //safelists for queries
   const topicSafelist = [
     "mitch",
     "cats",
@@ -21,8 +22,11 @@ exports.selectArticles = (query) => {
     "comment_count",
   ];
   const orderSafelist = ["asc", "desc"];
+
+  //to allow single articles and all articles
   const article = !query.article_id ? `` : `articles.body, `;
 
+  //base query to be added to
   let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, ${article} articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.body) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id `;
 
   if (query.hasOwnProperty("topic") && topicSafelist.includes(query.topic)) {
@@ -61,17 +65,25 @@ exports.selectArticles = (query) => {
   } else {
     queryStr += `DESC `;
   }
-console.log(query)
-  !query.p ? query.p = 1 : null
-  console.log(query)
+
+  //pagination
+  !query.p ? (query.p = 1) : null;
   const startSlice = query.limit * query.p - query.limit;
   const endSlice = query.limit * query.p;
-  console.log(startSlice, endSlice);
+
   return db.query(queryStr).then(({ rows }) => {
     if (query.hasOwnProperty("limit")) {
-      return rows.slice(startSlice, endSlice);
+      return endSlice.toString() === "NaN"
+        ? Promise.reject({ status: 400, message: "Error: Bad Request" })
+        : {
+            articles: rows.slice(startSlice, endSlice),
+            totalCount: rows.length,
+          };
+    } else {
+      return !query.article_id
+        ? { articles: rows, totalCount: rows.length }
+        : { articles: rows[0], totalCount: rows.length };
     }
-    return !query.article_id ? rows : rows[0];
   });
 };
 

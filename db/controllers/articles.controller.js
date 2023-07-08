@@ -13,7 +13,10 @@ exports.getArticles = (req, res, next) => {
 
   Promise.all([selectArticles(query), articleChecker(article_id)])
     .then((articles) => {
-      res.status(200).send({ articles: articles[0] });
+      res.status(200).send({
+        articles: articles[0].articles,
+        totalCount: articles[0].totalCount,
+      });
     })
     .catch(next);
 };
@@ -36,7 +39,7 @@ exports.postArticle = (req, res, next) => {
   const article = req.body;
   insertArticle(article)
     .then((postedArticle) => {
-           res.status(201).send({ postedArticle });
+      res.status(201).send({ postedArticle });
     })
     .catch((err) => {
       err.code == 23503
