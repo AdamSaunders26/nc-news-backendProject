@@ -798,3 +798,55 @@ describe("POST /api/articles", () => {
       });
   });
 });
+
+describe("PAGINATION GET /api/articles", () => {
+  test("200: should return 10 responses", () => {
+    return request(app)
+      .get("/api/articles?limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(10);
+      });
+  });
+  test("200: should the return the second page of responses", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=2&sortby=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(5);
+        expect(body.articles[0].article_id).toBe(6);
+      });
+  });
+  test("200: should return a total count property", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=2&sortby=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.totalCount).toBe(13);
+      });
+  });
+  test("200: should return maximum amount of results if limit exceeds number of available results", () => {
+    return request(app)
+      .get("/api/articles?limit=100&p=1&sortby=article_id&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.totalCount).toBe(13);
+      });
+  });
+  test("400: should return an error message if the page is invalid", () => {
+    return request(app)
+      .get("/api/articles?limit=5&p=apricot&sortby=article_id&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error message if the limit is invalid", () => {
+    return request(app)
+      .get("/api/articles?limit=pear&p=1&sortby=article_id&order=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});

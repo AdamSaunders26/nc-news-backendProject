@@ -10,8 +10,8 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "queries": ["topic", "sort_by", "order"],
+    "description": "serves an array of all articles with a total count property. Supports pagination",
+    "queries": ["topic", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "articles": [
         {
