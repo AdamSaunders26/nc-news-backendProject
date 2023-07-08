@@ -3,7 +3,8 @@ const {
   postComment,
   deleteComment,
   patchComment,
-} = require("../../controllers/comments.controller");
+} = require("../controllers/comments.controller")
+    
 
 const commentsRouter = require("express").Router();
 

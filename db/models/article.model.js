@@ -66,13 +66,13 @@ exports.selectArticles = (query) => {
     queryStr += `DESC `;
   }
 
-  //pagination
-  !query.p ? (query.p = 1) : null;
-  const startSlice = query.limit * query.p - query.limit;
-  const endSlice = query.limit * query.p;
-
   return db.query(queryStr).then(({ rows }) => {
-    if (query.hasOwnProperty("limit")) {
+    //pagination
+    if (query.hasOwnProperty("limit") || query.hasOwnProperty("p")) {
+      !query.limit ? (query.limit = 10) : null;
+      !query.p ? (query.p = 1) : null;
+      const startSlice = query.limit * query.p - query.limit;
+      const endSlice = query.limit * query.p;
       return endSlice.toString() === "NaN"
         ? Promise.reject({ status: 400, message: "Error: Bad Request" })
         : {
