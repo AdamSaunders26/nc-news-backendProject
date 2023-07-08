@@ -8,8 +8,10 @@ const {
 
 exports.getComments = (req, res, next) => {
   const { article_id } = req.params;
+  const {query} = req
 
-  Promise.all([selectComments(article_id), articleChecker(article_id)])
+
+  Promise.all([selectComments(article_id, query), articleChecker(article_id)])
     .then((resolvedPromises) => {
       res.status(200).send({ comments: resolvedPromises[0] });
     })

@@ -1,13 +1,23 @@
 const db = require("../connection");
 
-exports.selectComments = (article_id) => {
+exports.selectComments = (article_id, query) => {
   return db
     .query(
       `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
       [article_id]
     )
     .then(({ rows }) => {
-      return rows;
+      if (query.hasOwnProperty("limit") || query.hasOwnProperty("p")) {
+        !query.limit ? (query.limit = 10) : null;
+        !query.p ? (query.p = 1) : null;
+        const startSlice = query.limit * query.p - query.limit;
+        const endSlice = query.limit * query.p;
+        return endSlice.toString() === "NaN"
+          ? Promise.reject({ status: 400, message: "Error: Bad Request" })
+          : rows.slice(startSlice, endSlice);
+      } else {
+        return rows;
+      }
     });
 };
 

@@ -12,11 +12,11 @@ const {
   deleteComment,
 } = require("./controllers/comments.controller");
 const { getUsers } = require("./controllers/users.controller");
-const apiRouter = require("./data/routes/api-router");
-const userRouter = require("./data/routes/users-router");
-const topicsRouter = require("./data/routes/topics-router");
-const articlesRouter = require("./data/routes/articles-router");
-const commentsRouter = require("./data/routes/comments-router");
+const apiRouter = require("./routes/api-router");
+const userRouter = require("./routes/users-router");
+const topicsRouter = require("./routes/topics-router");
+const articlesRouter = require("./routes/articles-router");
+const commentsRouter = require("./routes/comments-router");
 
 const app = express();
 app.use(express.json());

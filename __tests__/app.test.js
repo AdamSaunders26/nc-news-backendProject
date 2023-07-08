@@ -850,3 +850,65 @@ describe("PAGINATION GET /api/articles", () => {
       });
   });
 });
+
+describe("PAGINATION GET /api/articles/:article_id/comments", () => {
+  test("200: should return 10 comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body.comments);
+        expect(body.comments.length).toBe(10);
+      });
+  });
+  test("200: should return the second page of comments", () => {
+    const comment6 = {
+      comment_id: 8,
+      body: "Delicious crackerbreads",
+      article_id: 1,
+      author: "icellusedkars",
+      votes: 0,
+      created_at: "2020-04-14T20:19:00.000Z",
+    };
+
+    return request(app)
+      .get("/api/articles/1/comments?limit=5&p=2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments.length).toBe(5);
+        expect(body.comments[0]).toEqual(comment6);
+      });
+  });
+  test("200: should return 10 results if given p value and not limit", () => {
+    return request(app)
+      .get("/api/articles/1/comments?p=1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments.length).toBe(10);
+      });
+  });
+  test("200: should return all available comments if limit exceeds available comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=100")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments.length).toBe(11);
+      });
+  });
+  test("400: should return an error if limit is invalid", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=purple")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("400: should return an error if page is invalid", () => {
+    return request(app)
+      .get("/api/articles/1/comments?limit=4&p=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});
