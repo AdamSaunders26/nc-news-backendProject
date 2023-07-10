@@ -1,17 +1,5 @@
 const express = require("express");
-const { getTopics } = require("./controllers/topics.controller");
 const { serverError, customError, psqlError } = require("./error-handlers");
-const { getEndpoints } = require("./controllers/api.controller");
-const {
-  getArticles,
-  patchArticle,
-} = require("./controllers/articles.controller");
-const {
-  getComments,
-  postComment,
-  deleteComment,
-} = require("./controllers/comments.controller");
-const { getUsers } = require("./controllers/users.controller");
 const apiRouter = require("./routes/api-router");
 const userRouter = require("./routes/users-router");
 const topicsRouter = require("./routes/topics-router");

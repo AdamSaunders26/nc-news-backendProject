@@ -857,7 +857,6 @@ describe("PAGINATION GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments?limit=10")
       .expect(200)
       .then(({ body }) => {
-        console.log(body.comments);
         expect(body.comments.length).toBe(10);
       });
   });
@@ -906,6 +905,55 @@ describe("PAGINATION GET /api/articles/:article_id/comments", () => {
   test("400: should return an error if page is invalid", () => {
     return request(app)
       .get("/api/articles/1/comments?limit=4&p=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});
+
+describe("POST /api/topics", () => {
+  test("should add a new topic", () => {
+    const postedTopic = {
+      slug: "How to and DIY",
+      description: "How to post a new topic/slug (ew)",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postedTopic)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.postedTopic).toEqual(postedTopic);
+      });
+  });
+  test("should return an error if the post object is empty", () => {
+    const postedTopic = {};
+    return request(app)
+      .post("/api/topics")
+      .send(postedTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("should return an error if the post object has no topic", () => {
+    const postedTopic = { description: "How to post topics and the like" };
+    return request(app)
+      .post("/api/topics")
+      .send(postedTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+  test("should return an error if the topic is empty", () => {
+    const postedTopic = {
+      topic: null,
+      description: "How to post topics and the like",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(postedTopic)
       .expect(400)
       .then(({ body }) => {
         expect(body.message).toBe("Error: Bad Request");
