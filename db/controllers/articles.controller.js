@@ -3,6 +3,7 @@ const {
   selectArticles,
   updateArticles,
   insertArticle,
+  destroyArticle,
 } = require("../models/article.model");
 const { articleChecker } = require("../models/article.model");
 
@@ -37,6 +38,7 @@ exports.patchArticle = (req, res, next) => {
 
 exports.postArticle = (req, res, next) => {
   const article = req.body;
+
   insertArticle(article)
     .then((postedArticle) => {
       res.status(201).send({ postedArticle });
@@ -46,4 +48,13 @@ exports.postArticle = (req, res, next) => {
         ? next({ status: 400, message: "Error: Bad Request" })
         : next(err);
     });
+};
+
+exports.deleteArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  destroyArticle(article_id)
+    .then(() => {
+      res.status(204).send({});
+    })
+    .catch(next);
 };
