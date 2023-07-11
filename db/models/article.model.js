@@ -133,3 +133,39 @@ exports.insertArticle = (article) => {
     return output[1].rows[0];
   });
 };
+
+exports.destroyArticle = async (article_id) => {
+  const commentsLookup = await db
+    .query(
+      `SELECT articles.article_id, COUNT(comments.body) FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.article_id ASC;`
+    )
+    .then(({ rows }) => {
+      const newObj = {};
+      rows.forEach((row) => {
+        newObj[row.article_id] = row.count;
+      });
+      return newObj;
+    });
+
+  if (!commentsLookup.hasOwnProperty(article_id)) {
+    if (Number(article_id).toString() === "NaN") {
+      return Promise.reject({ status: 400, message: "Error: Bad Request" });
+    } else {
+      return Promise.reject({ status: 404, message: "Error: Not Found" });
+    }
+  } else {
+    return db
+      .query(`DELETE FROM comments WHERE article_id = $1;`, [article_id])
+      .then(() => {
+        return db.query(
+          `DELETE FROM articles WHERE article_id = $1 RETURNING *;`,
+          [article_id]
+        );
+      })
+      .then(({ rows }) => {
+        return rows[0].article_id == article_id
+          ? null
+          : Promise.reject({ status: 400, message: "Error: Bad Request" });
+      });
+  }
+};

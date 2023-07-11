@@ -170,5 +170,26 @@
         "comment_count": "0"
       }
     }
+  },
+  "POST /api/topics": {
+    "description": "posts given topic",
+    "queries": [],
+    "parameters": "",
+    "exampleInput": {
+      "slug": "Hot Topic",
+      "description": "Ow, its hot"
+    },
+    "exampleResponse": {
+      "slug": "Hot Topic",
+      "description": "Ow, its hot"
+    }
+  },
+
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the given article and it's comments",
+    "queries": [],
+    "parameters": "integer",
+    "exampleInput": {},
+    "exampleResponse": {}
   }
 }

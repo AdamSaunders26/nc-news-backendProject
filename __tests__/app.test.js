@@ -960,3 +960,38 @@ describe("POST /api/topics", () => {
       });
   });
 });
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("should delete an article based on the id and any linked comments", () => {
+    return request(app)
+      .delete("/api/articles/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("should delete an article that has no comments", () => {
+    return request(app)
+      .delete("/api/articles/2")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("should return an error if the article_id does not exist", () => {
+    return request(app)
+      .delete("/api/articles/999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Not Found");
+      });
+  });
+  test("should return an error if the article_id is invalid", () => {
+    return request(app)
+      .delete("/api/articles/whoops")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Error: Bad Request");
+      });
+  });
+});
