@@ -1,6 +1,8 @@
 # **Northcoders News API**
 
-https://nc-news-app.onrender.com/api - Hosted version of the API
+Hosted version of the API - https://nc-news-app.onrender.com/api
+
+Hosted front-end project using this back-end API - https://adam-saunders-front-end-project.netlify.app/
 
 ## **Project Summary**
 
